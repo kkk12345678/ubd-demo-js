@@ -19,12 +19,20 @@ class UserService {
         const activationLink = uuid.v4()
         const defaultRole = 'USER';
         const user = await User.create({email, password: hashedPassword, activationLink, role: defaultRole});
-        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
+        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}`);
         const userDto = new UserDto(user);
         const tokens = await tokenService.generateTokens({...userDto});
         await tokenService.saveRefreshToken(userDto.id, tokens.refreshToken);
 
         return {...tokens, user: userDto}
+    }
+
+    async activate(activationLink) {
+        const user = User.findOne({where: {activationLink: activationLink}});
+        if (!user) {
+            throw new ApiError("Incorrect activation link");
+        }
+        await User.update({isActivated: true}, {where: {activationLink: activationLink}})
     }
 }
 

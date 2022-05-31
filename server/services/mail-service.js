@@ -16,7 +16,7 @@ class MailService {
     async sendActivationMail(to, link) {
         await this.transporter.sendMail({
             from: process.env.MAIL_USER,
-            to: 'kostiantyn.korolkov@gmail.com',
+            to: to,
             subject: "Account activation at " + process.env.API_URL,
             text: '',
             html:
